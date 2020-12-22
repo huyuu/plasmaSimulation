@@ -6,37 +6,42 @@ from mpl_toolkits import mplot3d
 import matplotlib.animation as animation
 import mpl_toolkits.mplot3d.axes3d as p3
 import pickle
+import multiprocessing as mp
 
 from particle import Particle
 from magneticEnvironment import MagneticEnvironment, StableMagneticEnvironment
 
 
 class Simulator():
-    def __init__(self, particle, magneticEnvironment, deltaT, maxIter):
-        self.particle = particle
-        self.magneticEnvironment = magneticEnvironment
+    def __init__(self, deltaT, maxIter):
         self.deltaT = deltaT
         self.maxIter = maxIter
 
 
-    def run(self):
+    def run(self, particles, envs):
+        assert len(particles) == len(envs)
+        with mp.Pool(processes=len(particles)) as pool:
+            pool.starmap(self.simulate, zip(particles, envs))
+
+
+    def simulate(self, particle, magneticEnvironment):
         # get move self.particle
-        self.particle.reset()
-        self.particle.moveUntilStop(magneticEnvironment=self.magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
+        particle.reset()
+        particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
         # plot in animation
-        # self.plotAnimation3d(particle=self.particle)
-        self.plotTrajectory3d(particle=self.particle)
+        # self.plotAnimation3d(particle=particle, magneticEnvironment=magneticEnvironment)
+        self.plotTrajectory3d(particle=particle, magneticEnvironment=magneticEnvironment)
 
 
-    def plotAnimation3d(self, particle):
+    def plotAnimation3d(self, particle, magneticEnvironment):
         fig = pl.figure()
         ax = p3.Axes3D(fig)
         # https://matplotlib.org/gallery/animation/simple_3danim.html
         def __plot(i):
             pl.cla()
-            ax.set_xlim(-self.magneticEnvironment.plotCubeX0, self.magneticEnvironment.plotCubeX0)
-            ax.set_ylim(-self.magneticEnvironment.plotCubeY0, self.magneticEnvironment.plotCubeY0)
-            ax.set_zlim(-self.magneticEnvironment.plotCubeZ0, self.magneticEnvironment.plotCubeZ0)
+            ax.set_xlim(-magneticEnvironment.plotCubeX0, magneticEnvironment.plotCubeX0)
+            ax.set_ylim(-magneticEnvironment.plotCubeY0, magneticEnvironment.plotCubeY0)
+            ax.set_zlim(-magneticEnvironment.plotCubeZ0, magneticEnvironment.plotCubeZ0)
             ax.set_xlabel('x [m]', fontsize=16)
             ax.set_ylabel('y [m]', fontsize=16)
             ax.set_zlabel('z [m]', fontsize=16)
@@ -48,12 +53,12 @@ class Simulator():
         pl.show()
 
 
-    def plotTrajectory3d(self, particle):
+    def plotTrajectory3d(self, particle, magneticEnvironment):
         fig = pl.figure()
         ax = pl.axes(projection='3d')
-        ax.set_xlim(-self.magneticEnvironment.plotCubeX0, self.magneticEnvironment.plotCubeX0)
-        ax.set_ylim(-self.magneticEnvironment.plotCubeY0, self.magneticEnvironment.plotCubeY0)
-        ax.set_zlim(-self.magneticEnvironment.plotCubeZ0, self.magneticEnvironment.plotCubeZ0)
+        ax.set_xlim(-magneticEnvironment.plotCubeX0, magneticEnvironment.plotCubeX0)
+        ax.set_ylim(-magneticEnvironment.plotCubeY0, magneticEnvironment.plotCubeY0)
+        ax.set_zlim(-magneticEnvironment.plotCubeZ0, magneticEnvironment.plotCubeZ0)
         ax.set_xlabel('x [m]', fontsize=16)
         ax.set_ylabel('y [m]', fontsize=16)
         ax.set_zlabel('z [m]', fontsize=16)
@@ -63,18 +68,17 @@ class Simulator():
 
 
 if __name__ == '__main__':
-    simulatorHighField = Simulator(
-        particle=Particle(mass=1e-6, q=1.0, x0=nu.array([0, 0, 1.0]), v0=nu.array([1e-2, 1e-2, -100]), a0=nu.zeros(3)),
-        magneticEnvironment=StableMagneticEnvironment(br0=0, bz0=1.0, plotCubeX0=1.0, plotCubeY0=1.0, plotCubeZ0=1.0),
-        deltaT=1e-7,
-        maxIter=10000
+    simulator = Simulator(
+        deltaT=1e-8,
+        maxIter=int(1e14)
     )
-    simulatorHighField.run()
-
-    simulatorLowField = Simulator(
-        particle=Particle(mass=1e-6, q=1.0, x0=nu.array([0, 0, 1.0]), v0=nu.array([1e-2, 1e-2, -100]), a0=nu.zeros(3)),
-        magneticEnvironment=StableMagneticEnvironment(br0=0, bz0=10e-3, plotCubeX0=1.0, plotCubeY0=1.0, plotCubeZ0=1.0),
-        deltaT=1e-7,
-        maxIter=10000
+    simulator.run(
+        particles=[
+            Particle(mass=1e-6, q=1.0, x0=nu.array([0, 0, 1.0]), v0=nu.array([1e-2, 1e-2, -100]), a0=nu.zeros(3)),
+            Particle(mass=1e-6, q=1.0, x0=nu.array([0, 0, 1.0]), v0=nu.array([1e-2, 1e-2, -100]), a0=nu.zeros(3))
+        ],
+        envs=[
+            StableMagneticEnvironment(br0=0, bz0=1.0, plotCubeX0=1.0, plotCubeY0=1.0, plotCubeZ0=1.0),
+            StableMagneticEnvironment(br0=0, bz0=10e-3, plotCubeX0=1.0, plotCubeY0=1.0, plotCubeZ0=1.0)
+        ]
     )
-    simulatorLowField.run()
