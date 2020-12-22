@@ -38,7 +38,6 @@ class Particle():
         step = 1
         while magneticEnvironment.isPointInsidePlotCube(self.x) and step <= maxIter:
             # calculate force from F = qvB. Mark that force is an array of 3 components.
-            # force = self.q * self.v * magneticEnvironment.bAt(position=self.x)
             force = self.q * nu.cross(self.v, magneticEnvironment.bAt(position=self.x))
             # update x
             newSpaceTime = self.moveOneStep(force=force, deltaT=deltaT)
