@@ -62,12 +62,11 @@ class Simulator():
         zippedLow = [ (particleLow, envLow) for particleLow in particlesLow ]
         # extend for Low
         with mp.Pool(processes=min(len(particlesHigh)*2, mp.cpu_count()-1)) as pool:
-            trainedSpaceTimeSeriesHigh = pool.starmap(self.simulate, zippedHigh)
+            trainedSpaceTimeSeries = pool.starmap(self.simulate, zippedHigh+zippedLow)
             for i, particle in enumerate(particlesHigh):
-                particle.spaceTimeSeries = trainedSpaceTimeSeriesHigh[i]
-            trainedSpaceTimeSeriesLow = pool.starmap(self.simulate, zippedLow)
+                particle.spaceTimeSeries = trainedSpaceTimeSeries[i]
             for i, particle in enumerate(particlesLow):
-                particle.spaceTimeSeries = trainedSpaceTimeSeriesLow[i]
+                particle.spaceTimeSeries = trainedSpaceTimeSeries[i+len(zippedHigh)]
         self.saveTrajectories(particlesHigh, envHigh, path='./particlesUnderEnvHigh.pickle')
         self.saveTrajectories(particlesLow, envLow, path='./particlesUnderEnvLow.pickle')
         self.plotTrajectories3d(particlesHigh, envHigh)
