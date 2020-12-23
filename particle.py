@@ -46,3 +46,31 @@ class Particle():
             self.spaceTimeSeries = nu.concatenate([self.spaceTimeSeries, newSpaceTime.reshape(1, -1)])
             step += 1
         return self.spaceTimeSeries.copy()
+
+
+    def __getstate__(self):
+        return {
+            'mass': self.mass,
+            'q': self.q,
+            'x0': self.x0,
+            'v0': self.v0,
+            'a0': self.a0,
+            'x': self.x,
+            'v': self.v,
+            'a': self.a,
+            't': self.t,
+            'spaceTimeSeries': self.spaceTimeSeries
+        }
+
+
+    def __setstate__(self, state):
+        self.mass = state['mass']
+        self.q = state['q']
+        self.x0 = state['x0']
+        self.x = state['x']
+        self.v0 = state['v0']
+        self.v = state['v']
+        self.a0 = state['a0']
+        self.a = state['a']
+        self.t = state['t']
+        self.spaceTimeSeries = state['spaceTimeSeries']

@@ -102,6 +102,30 @@ class MagneticEnvironment(object):
         return abs(point[0]) <= abs(self.plotCubeX0) and abs(point[1]) <= abs(self.plotCubeY0) and abs(point[2]) <= abs(self.plotCubeZ0)
 
 
+    def __getstate__(self):
+        return {
+            'brDistribution': self.brDistribution,
+            'bzDistribution': self.bzDistribution,
+            'plotCubeX0': self.plotCubeX0,
+            'plotCubeY0': self.plotCubeY0,
+            'plotCubeZ0': self.plotCubeZ0,
+            'interpolatedBrFunc': self.__interpolatedBrFunc,
+            'interpolatedBzFunc': self.__interpolatedBzFunc,
+            'bFieldQuiverProperties': self.bFieldQuiverProperties
+        }
+
+
+    def __setstate__(self, state):
+        self.brDistribution = state['brDistribution']
+        self.bzDistribution = state['bzDistribution']
+        self.plotCubeX0 = state['plotCubeX0']
+        self.plotCubeY0 = state['plotCubeY0']
+        self.plotCubeZ0 = state['plotCubeZ0']
+        self.__interpolatedBrFunc = state['interpolatedBrFunc']
+        self.__interpolatedBzFunc = state['interpolatedBzFunc']
+        self.bFieldQuiverProperties = state['bFieldQuiverProperties']
+
+
 
 class StableMagneticEnvironment(MagneticEnvironment):
     def __init__(self, br0, bz0, plotCubeX0, plotCubeY0, plotCubeZ0):
