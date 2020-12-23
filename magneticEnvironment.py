@@ -60,14 +60,16 @@ class MagneticEnvironment(object):
 
     @classmethod
     def initFromEnvWithScale(cls, env, scale):
-        return cls(
+        newEnv = cls(
             brDistribution=env.brDistribution*scale,
             bzDistribution=env.bzDistribution*scale,
             plotCubeX0=env.plotCubeX0,
             plotCubeY0=env.plotCubeY0,
             plotCubeZ0=env.plotCubeZ0
         )
-
+        (_xs, _ys, _zs, bs_x, bs_y, bs_z, length, arrow_length_ratio) = newEnv.bFieldQuiverProperties
+        newEnv.bFieldQuiverProperties = (_xs, _ys, _zs, bs_x, bs_y, bs_z, 2.0, arrow_length_ratio)
+        return newEnv
 
 
     def bAt(self, position):
