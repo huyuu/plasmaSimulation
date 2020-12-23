@@ -58,6 +58,18 @@ class MagneticEnvironment(object):
         return cls(brDistribution=brDistribution, bzDistribution=bzDistribution, plotCubeX0=plotCubeX0, plotCubeY0=plotCubeY0, plotCubeZ0=plotCubeZ0)
 
 
+    @classmethod
+    def initFromEnvWithScale(cls, env, scale):
+        return cls(
+            brDistribution=env.brDistribution*scale,
+            bzDistribution=env.bzDistribution*scale,
+            plotCubeX0=env.plotCubeX0,
+            plotCubeY0=env.plotCubeY0,
+            plotCubeZ0=env.plotCubeZ0
+        )
+
+
+
     def bAt(self, position):
         r = sqrt(position[0]**2 + position[1]**2)
         # https://note.nkmk.me/python-numpy-sin-con-tan/
