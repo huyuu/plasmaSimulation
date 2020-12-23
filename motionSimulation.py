@@ -54,7 +54,7 @@ class Simulator():
             v0_x = envHigh.plotCubeX0/1e2 * (2*nu.random.rand()-1)
             v0_y = envHigh.plotCubeY0/1e2 * (2*nu.random.rand()-1)
             # v0_z = envHigh.plotCubeZ0 * (-1)*(nu.random.rand()+0.5)
-            v0_z = -1.0
+            v0_z = -1000.0
             particle = Particle(mass=1e-6, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3))
             particlesHigh.append(particle)
             particlesLow.append(particle)
@@ -73,7 +73,9 @@ class Simulator():
     def simulate(self, particle, magneticEnvironment):
         # get move self.particle
         particle.reset()
-        return particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
+        spaceTime = particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
+        print(spaceTime)
+        return spaceTime
         # plot in animation
         # self.plotAnimation3d(particle=particle, magneticEnvironment=magneticEnvironment)
         # self.plotTrajectory3d(particle=particle, magneticEnvironment=magneticEnvironment)
@@ -151,8 +153,8 @@ class Simulator():
 
 if __name__ == '__main__':
     simulator = Simulator(
-        deltaT=1e-4,
-        maxIter=int(1e6)
+        deltaT=1e-5,
+        maxIter=int(1e10)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
     # simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
