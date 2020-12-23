@@ -150,8 +150,8 @@ class Simulator():
 
 if __name__ == '__main__':
     simulator = Simulator(
-        deltaT=1e-6,
-        maxIter=int(1e8)
+        deltaT=1e-4,
+        maxIter=int(1e5)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
     # simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
