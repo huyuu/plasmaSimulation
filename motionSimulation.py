@@ -177,6 +177,6 @@ if __name__ == '__main__':
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
     envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
-    simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=10)
+    simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=20)
 
     # simulator.replotTrajectories3dFromSavedResults()

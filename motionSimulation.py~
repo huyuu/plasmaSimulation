@@ -16,6 +16,8 @@ class Simulator():
     def __init__(self, deltaT, maxIter):
         self.deltaT = deltaT
         self.maxIter = maxIter
+        self.pathHigh = './particlesUnderEnvHigh.pickle'
+        self.pathLow = './particlesUnderEnvLow.pickle'
 
 
     def runUnderCertainPairs(self, particles, envs):
@@ -67,8 +69,8 @@ class Simulator():
                 particle.spaceTimeSeries = trainedSpaceTimeSeries[i]
             for i, particle in enumerate(particlesLow):
                 particle.spaceTimeSeries = trainedSpaceTimeSeries[i+len(zippedHigh)]
-        self.saveTrajectories(particlesHigh, envHigh, path='./particlesUnderEnvHigh.pickle')
-        self.saveTrajectories(particlesLow, envLow, path='./particlesUnderEnvLow.pickle')
+        self.saveTrajectories(particlesHigh, envHigh, path=self.pathHigh)
+        self.saveTrajectories(particlesLow, envLow, path=self.pathLow)
         self.plotTrajectories3d(particlesHigh, envHigh)
         self.plotTrajectories3d(particlesLow, envLow)
 
@@ -144,12 +146,27 @@ class Simulator():
 
 
     def saveTrajectories(self, particles, env, path):
-        saveDict = {
+        savedDict = {
             'particles': particles,
             'env': env
         }
         with open(path, 'wb') as file:
-            pickle.dump(saveDict, file)
+            pickle.dump(savedDict, file)
+
+
+    def replotTrajectories3dFromSavedResults(self):
+        # plot High
+        with open(self.pathHigh, 'rb') as file:
+            savedDictHigh = pickle.load(file)
+            particlesHigh = savedDictHigh['particles']
+            envHigh = savedDictHigh['env']
+        self.plotTrajectories3d(particlesHigh, envHigh)
+        # plot Low
+        with open(self.pathLow, 'rb') as file:
+            savedDictLow = pickle.load(file)
+            particlesLow = savedDictLow['particles']
+            envLow = savedDictLow['env']
+        self.plotTrajectories3d(particlesLow, envLow)
 
 
 
@@ -159,7 +176,7 @@ if __name__ == '__main__':
         maxIter=int(1e10)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
-    # simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
-
     envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
     simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=10)
+
+    # simulator.replotTrajectories3dFromSavedResults()
