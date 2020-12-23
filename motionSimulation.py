@@ -138,5 +138,5 @@ if __name__ == '__main__':
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
     # simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
 
-    envLow = MagneticEnvironment.initFromEnvWithScale(scale=1e-2)
+    envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
     simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=10)
