@@ -53,16 +53,21 @@ class Simulator():
             x0_z = envHigh.plotCubeZ0
             v0_x = envHigh.plotCubeX0/1e2 * (2*nu.random.rand()-1)
             v0_y = envHigh.plotCubeY0/1e2 * (2*nu.random.rand()-1)
-            # v0_z = envHigh.plotCubeZ0 * (-1)*(nu.random.rand()+0.5)
-            v0_z = -100.0
-            particlesHigh.append(Particle(mass=1e-3, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
-            particlesLow.append(Particle(mass=1e-3, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
+            v0_z = envHigh.plotCubeZ0 * (-1)*(nu.random.rand()+0.5)
+            # v0_z = -100.0
+            particlesHigh.append(Particle(mass=1e-6, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
+            particlesLow.append(Particle(mass=1e-6, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
         # simulate
-        zipped = [ (particleHigh, envHigh) for particleHigh in particlesHigh ]
+        zippedHigh = [ (particleHigh, envHigh) for particleHigh in particlesHigh ]
+        zippedLow = [ (particleLow, envLow) for particleLow in particlesLow ]
         # extend for Low
-        zipped.extend([ (particleLow, envLow) for particleLow in particlesLow ])
         with mp.Pool(processes=min(len(particlesHigh)*2, mp.cpu_count()-1)) as pool:
-            _ = pool.starmap(self.simulate, zipped)
+            trainedSpaceTimeSeriesHigh = pool.starmap(self.simulate, zippedHigh)
+            for i, particle in enumerate(particlesHigh):
+                particle.spaceTimeSeries = trainedSpaceTimeSeriesHigh[i]
+            trainedSpaceTimeSeriesLow = pool.starmap(self.simulate, zippedLow)
+            for i, particle in enumerate(particlesLow):
+                particle.spaceTimeSeries = trainedSpaceTimeSeriesLow[i]
         self.saveTrajectories(particlesHigh, envHigh, path='./particlesUnderEnvHigh.pickle')
         self.saveTrajectories(particlesLow, envLow, path='./particlesUnderEnvLow.pickle')
         self.plotTrajectories3d(particlesHigh, envHigh)
@@ -73,7 +78,6 @@ class Simulator():
         # get move self.particle
         particle.reset()
         spaceTime = particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
-        print(spaceTime)
         return spaceTime
         # plot in animation
         # self.plotAnimation3d(particle=particle, magneticEnvironment=magneticEnvironment)
@@ -136,6 +140,7 @@ class Simulator():
         ax.quiver(_xs, _ys, _zs, bs_x, bs_y, bs_z, length=length, arrow_length_ratio=arrow_length_ratio)
         # plot trajectories
         for particle in particles:
+            print(particle.spaceTimeSeries)
             ax.scatter3D(particle.spaceTimeSeries[:, 0].ravel(), particle.spaceTimeSeries[:, 1].ravel(), particle.spaceTimeSeries[:, 2].ravel(), c=particle.spaceTimeSeries[:, 3].ravel(), cmap='viridis')
         pl.show()
 
