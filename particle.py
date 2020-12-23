@@ -21,6 +21,7 @@ class Particle():
         self.x = self.x0
         self.v = self.v0
         self.a = self.a0
+        self.t = 0
         self.spaceTimeSeries = nu.array([self.x[0], self.x[1], self.x[2], self.t]).reshape(1, -1)
 
 
@@ -44,3 +45,4 @@ class Particle():
             # save to positionSeries
             self.spaceTimeSeries = nu.concatenate([self.spaceTimeSeries, newSpaceTime.reshape(1, -1)])
             step += 1
+        return self.spaceTimeSeries.copy()

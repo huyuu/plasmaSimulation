@@ -43,10 +43,33 @@ class Simulator():
         self.plotTrajectories3d(particles, env)
 
 
+    def runUnderHighLowEnvRandomParticles(self, envHigh, envLow, samples):
+        particles = []
+        for _ in range(samples):
+            # https://note.nkmk.me/python-numpy-random/
+            x0_x = envHigh.plotCubeX0 * (2*nu.random.rand()-1)
+            x0_y = envHigh.plotCubeY0 * (2*nu.random.rand()-1)
+            x0_z = envHigh.plotCubeZ0
+            v0_x = envHigh.plotCubeX0/1e2 * (2*nu.random.rand()-1)
+            v0_y = envHigh.plotCubeY0/1e2 * (2*nu.random.rand()-1)
+            v0_z = envHigh.plotCubeZ0 * (-1)*nu.random.rand()
+            particle = Particle(mass=1e-6, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3))
+            particles.append(particle)
+        # simulate under envHigh
+        with mp.Pool(processes=min(len(particles), mp.cpu_count()-1)) as pool:
+            _ = pool.starmap(self.simulate, [ (particle, envHigh) for particle in particles ])
+        self.plotTrajectories3d(particles, envHigh)
+        # simulate under envLow
+        with mp.Pool(processes=min(len(particles), mp.cpu_count()-1)) as pool:
+            _ = pool.starmap(self.simulate, [ (particle, envLow) for particle in particles ])
+        self.plotTrajectories3d(particles, envLow)
+
+
+
     def simulate(self, particle, magneticEnvironment):
         # get move self.particle
         particle.reset()
-        particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
+        return particle.moveUntilStop(magneticEnvironment=magneticEnvironment, deltaT=self.deltaT, maxIter=self.maxIter)
         # plot in animation
         # self.plotAnimation3d(particle=particle, magneticEnvironment=magneticEnvironment)
         # self.plotTrajectory3d(particle=particle, magneticEnvironment=magneticEnvironment)
@@ -96,8 +119,14 @@ class Simulator():
         ax.set_ylabel('y [m]', fontsize=16)
         ax.set_zlabel('z [m]', fontsize=16)
         ax.tick_params(labelsize=12)
+        # plot quiver 3d
+        _xs, _ys, _zs, bs_x, bs_y, bs_z, length, arrow_length_ratio = magneticEnvironment.bFieldQuiverProperties
+        # https://matplotlib.org/3.1.0/gallery/mplot3d/quiver3d.html#d-quiver-plot
+        # https://matplotlib.org/mpl_toolkits/mplot3d/tutorial.html#quiver
+        ax.quiver(_xs, _ys, _zs, bs_x, bs_y, bs_z, length=length, arrow_length_ratio=arrow_length_ratio)
+        # plot trajectories
         for particle in particles:
-            ax.scatter3D(particle.spaceTimeSeries[:, 0].ravel(), particle.spaceTimeSeries[:, 1].ravel(), particle.spaceTimeSeries[:, 2].ravel(), c=particle.spaceTimeSeries[:, 3].ravel(), cmap='Blues')
+            ax.scatter3D(particle.spaceTimeSeries[:, 0].ravel(), particle.spaceTimeSeries[:, 1].ravel(), particle.spaceTimeSeries[:, 2].ravel(), c=particle.spaceTimeSeries[:, 3].ravel(), cmap='Reds')
         pl.show()
 
 
@@ -107,4 +136,9 @@ if __name__ == '__main__':
         maxIter=int(1e14)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
-    simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
+    # simulator.runUnderSameEnvRandomParticles(env=env, samples=10)
+
+    envLow = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
+    envLow.brDistribution *= 1e-2
+    envLow.bzDistribution *= 1e-2
+    simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=2)
