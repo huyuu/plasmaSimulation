@@ -134,7 +134,7 @@ class Simulator():
         ax.quiver(_xs, _ys, _zs, bs_x, bs_y, bs_z, length=length, arrow_length_ratio=arrow_length_ratio)
         # plot trajectories
         for particle in particles:
-            ax.scatter3D(particle.spaceTimeSeries[:, 0].ravel(), particle.spaceTimeSeries[:, 1].ravel(), particle.spaceTimeSeries[:, 2].ravel(), c=particle.spaceTimeSeries[:, 3].ravel(), cmap='Reds')
+            ax.scatter3D(particle.spaceTimeSeries[:, 0].ravel(), particle.spaceTimeSeries[:, 1].ravel(), particle.spaceTimeSeries[:, 2].ravel(), c=particle.spaceTimeSeries[:, 3].ravel(), cmap='viridis')
         pl.show()
 
 
@@ -150,7 +150,7 @@ class Simulator():
 
 if __name__ == '__main__':
     simulator = Simulator(
-        deltaT=1e-4,
+        deltaT=1e-3,
         maxIter=int(1e5)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
