@@ -54,10 +54,8 @@ class Simulator():
             v0_x = envHigh.plotCubeX0/1e2 * (2*nu.random.rand()-1)
             v0_y = envHigh.plotCubeY0/1e2 * (2*nu.random.rand()-1)
             # v0_z = envHigh.plotCubeZ0 * (-1)*(nu.random.rand()+0.5)
-            v0_z = -1000.0
-            particle = Particle(mass=1e-6, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3))
-            particlesHigh.append(particle)
-            particlesLow.append(particle)
+            particlesHigh.append(Particle(mass=1e-3, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
+            particlesLow.append(Particle(mass=1e-3, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
         # simulate
         zipped = [ (particleHigh, envHigh) for particleHigh in particlesHigh ]
         # extend for Low
