@@ -30,7 +30,7 @@ class MagneticEnvironment(object):
             fill_value=0.0
         )
         # create b field distribution plots
-        bFieldPlotPoints = 20
+        bFieldPlotPoints = 15
         xs=nu.linspace(-plotCubeX0, plotCubeX0, bFieldPlotPoints)
         ys=nu.linspace(-plotCubeY0, plotCubeY0, bFieldPlotPoints)
         zs=nu.linspace(-plotCubeZ0, plotCubeZ0, bFieldPlotPoints)
