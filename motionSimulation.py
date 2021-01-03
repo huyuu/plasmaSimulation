@@ -176,7 +176,9 @@ if __name__ == '__main__':
         maxIter=int(1e10)
     )
     env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
-    envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
+    # envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
+    envWithShielding = MagneticEnvironment.initFromCSV(brPath='./BrDistributionWithShielding.csv', bzPath='./BzDistributionWithShielding.csv')
+
     simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envLow, samples=20)
 
     # simulator.replotTrajectories3dFromSavedResults()
