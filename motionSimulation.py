@@ -54,13 +54,14 @@ class Simulator():
             # https://note.nkmk.me/python-numpy-random/
             # x0_x = env.plotCubeX0 * (2*nu.random.rand()-1)
             # x0_y = env.plotCubeY0 * (2*nu.random.rand()-1)
-            x0_x = env.plotCubeX0 * nu.random.normal(loc=0, scale=0.2, size=1)[0]
-            x0_y = env.plotCubeY0 * nu.random.normal(loc=0, scale=0.2, size=1)[0]
+            x0_x = envHigh.plotCubeX0 * nu.random.normal(loc=0, scale=0.2, size=1)[0]
+            x0_y = envHigh.plotCubeY0 * nu.random.normal(loc=0, scale=0.2, size=1)[0]
             x0_z = envHigh.plotCubeZ0
             v0_x = envHigh.plotCubeX0/1e2 * (2*nu.random.rand()-1)
             v0_y = envHigh.plotCubeY0/1e2 * (2*nu.random.rand()-1)
             # v0_z = envHigh.plotCubeZ0 * (-1)*(nu.random.rand()+0.5)
-            v0_z = -100.0
+            # v0_z = -141.012
+            v0_z = -140
             particlesHigh.append(Particle(mass=1e-5, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
             particlesLow.append(Particle(mass=1e-5, q=1.0, x0=nu.array([x0_x, x0_y, x0_z]), v0=nu.array([v0_x, v0_y, v0_z]), a0=nu.zeros(3)))
         # simulate
@@ -177,12 +178,13 @@ class Simulator():
 if __name__ == '__main__':
     simulator = Simulator(
         deltaT=1e-6,
-        maxIter=int(1e10)
+        maxIter=int(1e11)
     )
-    env = MagneticEnvironment.initFromCSV(brPath='./BrDistributionOuter.csv', bzPath='./BzDistributionOuter.csv')
+    envWithFM = MagneticEnvironment.initFromCSV(brPath='./BrDistributionWithFM.csv', bzPath='./BzDistributionWithFM.csv', plotXYScale=0.5)
     # envLow = MagneticEnvironment.initFromEnvWithScale(env=env, scale=1e-2)
-    envWithShielding = MagneticEnvironment.initFromCSV(brPath='./BrDistributionWithShielding.csv', bzPath='./BzDistributionWithShielding.csv')
+    envWithoutFM = MagneticEnvironment.initFromCSV(brPath='./BrDistributionWithoutFM.csv', bzPath='./BzDistributionWithoutFM.csv', plotXYScale=0.5)
 
-    simulator.runUnderHighLowEnvRandomParticles(envHigh=env, envLow=envWithShielding, samples=10)
+    simulator.runUnderHighLowEnvRandomParticles(envHigh=envWithFM, envLow=envWithoutFM, samples=10)
+    # simulator.runUnderHighLowEnvRandomParticles(envHigh=MagneticEnvironment.initFromEnvWithScale(env=envWithFM, scale=2), envLow=MagneticEnvironment.initFromEnvWithScale(env=envWithoutFM, scale=2), samples=10)
 
     # simulator.replotTrajectories3dFromSavedResults()

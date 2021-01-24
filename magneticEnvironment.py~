@@ -30,7 +30,7 @@ class MagneticEnvironment(object):
             fill_value=0.0
         )
         # create b field distribution plots
-        bFieldPlotPoints = 15
+        bFieldPlotPoints = 20
         xs=nu.linspace(-plotCubeX0, plotCubeX0, bFieldPlotPoints)
         ys=nu.linspace(-plotCubeY0, plotCubeY0, bFieldPlotPoints)
         zs=nu.linspace(-plotCubeZ0, plotCubeZ0, bFieldPlotPoints)
@@ -41,14 +41,14 @@ class MagneticEnvironment(object):
 
 
     @classmethod
-    def initFromCSV(cls, brPath, bzPath):
+    def initFromCSV(cls, brPath, bzPath, plotXYScale=1.0):
         # get br
         brDistribution = pd.read_csv(brPath, skiprows=8)
         brDistribution.columns = ['r', 'z', 'B']
         brDistribution = brDistribution.pivot(index='r', columns='z', values='B')
         # get plot
-        plotCubeX0 = brDistribution.index.values.ravel().max()
-        plotCubeY0 = brDistribution.index.values.ravel().max()
+        plotCubeX0 = brDistribution.index.values.ravel().max() * plotXYScale
+        plotCubeY0 = brDistribution.index.values.ravel().max() * plotXYScale
         plotCubeZ0 = brDistribution.columns.values.ravel().max()
         # get bz
         bzDistribution = pd.read_csv(bzPath, skiprows=8)
