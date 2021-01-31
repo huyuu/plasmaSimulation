@@ -47,7 +47,7 @@ class Simulator():
         self.plotTrajectories3d(particles, env)
 
 
-    def runUnderHighLowEnvRandomParticles(self, envHigh, envLow, samples):
+    def runUnderHighLowEnvRandomParticles(self, envHigh, envLow, samples, shouldPlot=True):
         particlesHigh = []
         particlesLow = []
         for _ in range(samples):
@@ -76,8 +76,13 @@ class Simulator():
                 particle.spaceTimeSeries = trainedSpaceTimeSeries[i+len(zippedHigh)]
         self.saveTrajectories(particlesHigh, envHigh, path=self.pathHigh)
         self.saveTrajectories(particlesLow, envLow, path=self.pathLow)
-        self.plotTrajectories3d(particlesHigh, envHigh)
-        self.plotTrajectories3d(particlesLow, envLow)
+        if shouldPlot == True:
+            self.plotTrajectories3d(particlesHigh, envHigh)
+            self.plotTrajectories3d(particlesLow, envLow)
+        # show probability
+        withFMProbs = self.calculateProbability(particlesHigh)
+        withoutFMProbs = self.calculateProbability(particlesLow)
+        print(f'withFMProbs = {withFMProbs}; withoutFMProbs = {withoutFMProbs}')
 
 
     def simulate(self, particle, magneticEnvironment):
@@ -172,6 +177,15 @@ class Simulator():
             particlesLow = savedDictLow['particles']
             envLow = savedDictLow['env']
         self.plotTrajectories3d(particlesLow, envLow)
+
+
+    def calculateProbability(self, particles):
+        ins = 0
+        for particle in particles:
+            zPositions = particle.spaceTimeSeries[:, 2].ravel()
+            if len(zPositions[zPositions <= 0.06]) > 0:
+                ins += 1
+        return ins / len(particles)
 
 
 
